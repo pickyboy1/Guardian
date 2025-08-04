@@ -1,0 +1,35 @@
+guardian:
+  enabled: true
+  default-counter-type: redis
+  default-window-size: 1
+  default-time-unit: MINUTES
+  default-error-message: "您的操作过于频繁，请稍后再试。"
+  local-counter-max-size: 10000
+  default-rules:
+    - count: 20
+      level: "WARN"
+      strategies:
+        - "logOnlyStrategy"
+    - count: 50
+      level: "CRITICAL"
+      strategies:
+        - "rejectActionStrategy"
+        - "emailActionStrategy"
+      continuous: true
+
+# ===================================================================
+# Spring Boot 基础配置 (示例)
+# ===================================================================
+# 如果使用 Redis 计数器，需要提供 Redis 的连接信息
+spring:
+  redis:
+    host: localhost
+    port: 6379
+    database: 0
+    timeout: 2000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: -1ms
