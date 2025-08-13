@@ -17,8 +17,10 @@ import com.pickyboy.guardian.strategy.ActionStrategy;
 import com.pickyboy.guardian.strategy.ActionStrategyManager;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -47,27 +49,24 @@ public class GuardianService {
     // 关键改动：根据配置，容器中只会有一个 Counter Bean，因此直接注入单个实例
     @Resource
     private Counter counter;
-    // --- 智能线程池注入 ---
-    @Autowired(required = false)
-    @Qualifier("guardianExecutor")
-    private Executor guardianExecutor; // 优先注入名为 guardianExecutor 的 Bean
 
-    @Autowired(required = false)
-    private Executor defaultExecutor; // 其次注入任意一个 Executor Bean
-
+    // 1. 移除这个字段上的 @Autowired 和 @Qualifier 注解
     private Executor executor; // 最终使用的线程池
+
+    // 2. 注入 Spring 的应用上下文 ApplicationContext
+    @Autowired
+    private ApplicationContext applicationContext;
 
     @PostConstruct
     public void initExecutor() {
-        if (guardianExecutor != null) {
-            this.executor = guardianExecutor;
-            log.info("Guardian 使用了指定的 'guardianExecutor' 线程池。");
-        } else if (defaultExecutor != null) {
-            this.executor = defaultExecutor;
-            log.info("Guardian 使用了项目中默认的 Executor 线程池。");
-        } else {
+        try {
+            // 3. 在初始化方法中，尝试按名称和类型从容器中获取 Bean
+            this.executor = applicationContext.getBean("guardianExecutor", Executor.class);
+            log.info("Guardian: 成功注入了自定义的线程池 Bean 'guardianExecutor'。");
+        } catch (NoSuchBeanDefinitionException e) {
+            // 4. 如果找不到，捕获异常并执行你的回退逻辑
             this.executor = ForkJoinPool.commonPool();
-            log.warn("Guardian: 未找到名为 'guardianExecutor' 或其他 Executor 类型的 Bean，将回退到使用 ForkJoinPool.commonPool()。" +
+            log.warn("Guardian: 未找到名为 'guardianExecutor' 的线程池 Bean，将回退到使用 ForkJoinPool.commonPool()。" +
                     "对于 I/O 密集型策略，强烈建议在您的项目中配置一个专用的线程池 Bean。");
         }
     }

@@ -9,6 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
+
     <artifactId>guardian-spring-boot-starter</artifactId>
 
     <properties>
@@ -33,14 +34,15 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!--
-            引入 Redisson Spring Boot Starter。
-            这是我们默认计数器 RedisCounter 的实现基础。
-            它会根据项目的 application.yml 自动配置好 RedissonClient。
-        -->
+        <!-- redis -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+            <version>2.7.2</version>
+        </dependency>
         <dependency>
             <groupId>org.redisson</groupId>
-            <artifactId>redisson-spring-boot-starter</artifactId>
+            <artifactId>redisson</artifactId>
             <version>3.21.0</version>
         </dependency>
 

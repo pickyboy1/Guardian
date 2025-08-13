@@ -1,6 +1,7 @@
 package com.pickyboy.guardian.strategy.impl;
 
 import com.pickyboy.guardian.exception.GuardianException;
+import com.pickyboy.guardian.exception.RejectException;
 import com.pickyboy.guardian.model.constant.GuardianConstants;
 import com.pickyboy.guardian.model.strategy.ActionContext;
 import com.pickyboy.guardian.strategy.ActionStrategy;
@@ -30,7 +31,7 @@ public class RejectActionStrategy implements ActionStrategy {
 
         // 抛出异常，这是实现“快速失败”的关键。
         // AOP 切面将捕获此异常并中断方法执行。
-        throw new GuardianException(context.getDefinition().getErrorMessage());
+        throw new RejectException(context.getDefinition().getErrorMessage());
     }
 
     @Override

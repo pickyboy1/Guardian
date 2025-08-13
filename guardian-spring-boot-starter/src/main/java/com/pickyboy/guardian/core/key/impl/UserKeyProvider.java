@@ -49,11 +49,11 @@ public class UserKeyProvider implements KeyProvider {
                 log.debug("Using custom UserIdInterface, resolved userId: {}", userId);
             }
 
-            // 优先级 2 (兜底逻辑): 如果没有自定义实现，或自定义实现返回了空值，
+            // 优先级 2 (兜底逻辑): 如果没有自定义实现
             // 则执行默认的智能反射逻辑。
-            if (StrUtil.isBlank(userId)) {
+            else  {
                 userId = extractUserIdFromArgs(joinPoint);
-                log.debug("Using default reflection logic, resolved userId: {}", userId);
+                log.info("Using default reflection logic, resolved userId: {}", userId);
             }
 
             // 最终校验：如果所有尝试都失败了，抛出清晰的指导性异常
